@@ -5,9 +5,27 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: quay.io/spaces/kube-httpcache
   tag: stable
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
+
+backend:
+  namespace: default
+  service:  must-change-it
+
+varnish:
+  storage: "malloc,128M" ## should be less or equal to resources limits
+
+  ## run following if you haven't created one:
+  ## $ kubectl create secret generic varnish-secret --from-literal=secret=$(head -c32 /dev/urandom  | base64)
+  secretName: "varnish-secret"
+
+  ## run this when using RBAC
+  ## $ kubectl create serviceaccount kube-httpcache
+  ## $ kubectl apply -f https://raw.githubusercontent.com/mittwald/kube-httpcache/master/deploy/rbac.yaml
+  ## $ kubectl create rolebinding kube-httpcache --role=kube-httpcache --serviceaccount=kube-httpcache
+  ## uncomment following line when done.
+  # serviceAccountName: "kube-httpcache"
 
 imagePullSecrets: []
 nameOverride: ""

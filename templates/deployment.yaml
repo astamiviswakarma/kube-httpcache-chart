@@ -21,12 +21,42 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       containers:
+        {{- if .Values.varnish.serviceAccountName }}
+        serviceAccountName: {{ .Values.varnish.serviceAccountName }}
+        {{- end }}
+        volumes:
+        - name: template
+          configMap:
+            name: {{ include "kube-httpcache-chart.fullname" . }}
+        - name: secret
+          secret:
+            secretName: {{ .Values.varnish.secretName }}
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          - -admin-addr=0.0.0.0
+          - -admin-port=6083
+          - -frontend-watch=true
+          - -frontend-namespace={{ .Release.Namespace }}
+          - -frontend-service={{ include "kube-httpcache-chart.fullname" . }}
+          - -backend-watch=true
+          - -backend-namespace={{ .Values.backend.namespace }}
+          - -backend-service={{ .Values.backend.service }}
+          - -varnish-secret-file=/etc/varnish/k8s-secret/secret
+          - -varnish-vcl-template=/etc/varnish/tmpl/default.vcl.tmpl
+          - -varnish-storage={{ .Values.varnish.storage }}
+          volumeMounts:
+          - name: template
+            mountPath: /etc/varnish/tmpl
+          - name: secret
+            mountPath: /etc/varnish/k8s-secret
           ports:
             - name: http
               containerPort: 80
+              protocol: TCP
+            - name: admin-port
+              containerPort: 6083
               protocol: TCP
           livenessProbe:
             httpGet:
