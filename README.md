@@ -3,7 +3,9 @@ Inspired by https://github.com/mittwald/kube-httpcache. helm chart for kube-http
 
 
 run following before install
-```$ kubectl create secret generic varnish-secret --from-literal=secret=$(head -c32 /dev/urandom  | base64)```
+```
+$ kubectl create secret generic varnish-secret --from-literal=secret=$(head -c32 /dev/urandom  | base64)
+```
 
 if RBAC is enabled you need to run these too.
 ```
