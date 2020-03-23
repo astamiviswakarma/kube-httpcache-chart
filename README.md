@@ -7,7 +7,7 @@ run following before install
 $ kubectl create secret generic varnish-secret --from-literal=secret=$(head -c32 /dev/urandom  | base64)
 ```
 
-if RBAC is enabled you need to run these too.
+if RBAC is enabled you may need to run these too.
 ```
 $ kubectl create serviceaccount kube-httpcache
 $ kubectl apply -f https://raw.githubusercontent.com/mittwald/kube-httpcache/master/deploy/rbac.yaml
